@@ -73,7 +73,7 @@ def login_screen():
                         st.rerun()
                     
                     # Standard Password Verification (Hash comparison in production)
-                    elif password == "password123":  # Demo check
+                    elif password == user_record["password_hash"]:  # Demo check
                         st.session_state.logged_in = True
                         st.session_state.user_data = user_record
                         st.session_state.failed_attempts = 0
