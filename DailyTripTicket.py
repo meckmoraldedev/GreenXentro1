@@ -20,14 +20,14 @@ if "user_data" not in st.session_state:
 
 # Mock Employee Database / Record Store (Replace with your SQL Server backend lookup)
 MOCK_EMPLOYEE_DB = {
-    "SAP1001": {
-        "sap_id": "SAP1001",
+    "1081": {
+        "sap_id": "1081",
         "name": "Moralde, Michael A.",
         "email": "michael.moralde@greenxentro.com",
         "cellphone": "09123456789",
         "plate_no": "ABC-1234",
         "team": "Team Benjo",
-        "password_hash": "secure_hash_123",  # Existing password
+        "password_hash": "meck1234",  # Existing password
     },
     "SAP1002": {
         "sap_id": "SAP1002",
