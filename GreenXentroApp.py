@@ -26,9 +26,12 @@ url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sh
 
 @st.cache_data(ttl=60)
 def load_employee_data():
-  # dtype={'sap_id': str} forces pandas to treat SAP IDs as strings
-  df = pd.read_csv(url, dtype={"sap_id": str})
+  # dtype=str forces everything to string, .fillna("") turns blank cells into empty strings
+  df = pd.read_csv(url, dtype=str).fillna("")
   return df.set_index("sap_id").to_dict(orient="index")
+
+
+MOCK_EMPLOYEE_DB = load_employee_data()
 
 
 EMPLOYEE_DB = load_employee_data()
