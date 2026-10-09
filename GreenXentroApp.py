@@ -1,4 +1,5 @@
 import datetime
+import pandas as pd
 import streamlit as st
 
 # Page Configuration
@@ -18,27 +19,19 @@ if "failed_attempts" not in st.session_state:
 if "user_data" not in st.session_state:
     st.session_state.user_data = {}
 
-# Mock Employee Database / Record Store (Replace with your SQL Server backend lookup)
-MOCK_EMPLOYEE_DB = {
-    "1081": {
-        "sap_id": "1081",
-        "name": "Moralde, Michael A.",
-        "email": "meckmoralde@gmail.com",
-        "cellphone": "09274756700",
-        "plate_no": "NIZ 9600",
-        "team": "Team Hanna",
-        "password_hash": "meck1234",  # Existing password
-    },
-    "0001": {
-        "sap_id": "0001",
-        "name": "Bacor, Juan D.",
-        "email": "juan.bacor@greenxentro.com",
-        "cellphone": "09987654321",
-        "plate_no": "XYZ-5678",
-        "team": "Team Bacor",
-        "password_hash": "",  # Blank/Null password triggers First-Time Login
-    },
-}
+# Employee Database / Record Store (Replace with your SQL Server backend lookup)
+SHEET_ID = "10Ju2dEKjMwZwOvgFym6R9Raonom5TNWk-ampJeOIlQg"
+SHEET_NAME = "Sheet1"  # Change if your tab has a different name
+url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={SHEET_NAME}"
+
+@st.cache_data(ttl=60)
+def load_employee_data():
+  df = pd.read_csv(url)
+  # Convert dataframe into the dictionary structure your login logic expects
+  return df.set_index("sap_id").to_dict(orient="index")
+
+EMPLOYEE_DB = load_employee_data()
+
 
 def login_screen():
     st.markdown("<h2 style='text-align: center;'>GSM GreenXentro</h2>", unsafe_allow_html=True)
@@ -62,7 +55,7 @@ def login_screen():
             if not sap_id or not password:
                 st.warning("Please enter both SAP ID and Password.")
             else:
-                user_record = MOCK_EMPLOYEE_DB.get(sap_id)
+                user_record = EMPLOYEE_DB.get(sap_id)
 
                 if not user_record:
                     st.error("Invalid SAP ID. Employee record not found.")
@@ -110,7 +103,7 @@ def initial_setup_screen():
                 st.error("Passwords do not match.")
             else:
                 sap_id = st.session_state.user_data["sap_id"]
-                MOCK_EMPLOYEE_DB[sap_id]["password_hash"] = "updated_secure_hash"
+                EMPLOYEE_DB[sap_id]["password_hash"] = "updated_secure_hash"
                 st.success("Password configured successfully! Redirecting to login...")
                 st.session_state.current_page = "login"
                 st.rerun()
@@ -127,7 +120,7 @@ def forgot_password_screen():
         verify_btn = st.form_submit_button("Verify & Dispatch OTP", use_container_width=True)
 
         if verify_btn:
-            user_record = MOCK_EMPLOYEE_DB.get(sap_id)
+            user_record = EMPLOYEE_DB.get(sap_id)
             if user_record and user_record["cellphone"] == cellphone and user_record["email"] == email:
                 st.success("Verification successful! A secure reset OTP has been sent to your mobile number and email.")
                 st.session_state.failed_attempts = 0
