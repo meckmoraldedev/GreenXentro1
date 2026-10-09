@@ -3,7 +3,7 @@ import streamlit as st
 
 # Page Configuration
 st.set_page_config(
-    page_title="GreenXentro - Fleet Portal",
+    page_title="GreenXentro Fleet Portal",
     page_icon="🚗",
     layout="centered",
 )
