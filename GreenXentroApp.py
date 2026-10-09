@@ -26,9 +26,10 @@ url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sh
 
 @st.cache_data(ttl=60)
 def load_employee_data():
-  df = pd.read_csv(url)
-  # Convert dataframe into the dictionary structure your login logic expects
+  # dtype={'sap_id': str} forces pandas to treat SAP IDs as strings
+  df = pd.read_csv(url, dtype={"sap_id": str})
   return df.set_index("sap_id").to_dict(orient="index")
+
 
 EMPLOYEE_DB = load_employee_data()
 
