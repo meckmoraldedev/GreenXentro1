@@ -41,7 +41,7 @@ MOCK_EMPLOYEE_DB = {
 }
 
 def login_screen():
-    st.markdown("<h2 style='text-align: center;'>GreenXentro Fleet Portal</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center;'>GSM GreenXentro</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: gray;'>Sign in with your SAP ID and Password</p>", unsafe_allow_html=True)
 
     # Check for Account Lockout (3 failed attempts threshold)
