@@ -29,8 +29,8 @@ MOCK_EMPLOYEE_DB = {
         "team": "Team Benjo",
         "password_hash": "meck1234",  # Existing password
     },
-    "SAP1002": {
-        "sap_id": "SAP1002",
+    "0001": {
+        "sap_id": "0001",
         "name": "Bacor, Juan D.",
         "email": "juan.bacor@greenxentro.com",
         "cellphone": "09987654321",
