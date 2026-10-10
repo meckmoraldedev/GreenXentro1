@@ -30,13 +30,10 @@ def load_employee_data():
   df = pd.read_csv(url, dtype=str).fillna("")
   return df.set_index("sap_id").to_dict(orient="index")
 
-
-MOCK_EMPLOYEE_DB = load_employee_data()
-
-
 EMPLOYEE_DB = load_employee_data()
 
 
+#Login Screen
 def login_screen():
     st.markdown("<h2 style='text-align: center;'>GSM GreenXentro</h2>", unsafe_allow_html=True)
     st.markdown("<h2 style='text-align: center;'>Fleet Portal</h2>", unsafe_allow_html=True)
@@ -71,7 +68,7 @@ def login_screen():
                         st.rerun()
                     
                     # Standard Password Verification (Hash comparison in production)
-                    elif password == user_record["password_hash"]:  # Demo check
+                    elif password == user_record["password_hash"]:  
                         st.session_state.logged_in = True
                         st.session_state.user_data = user_record
                         st.session_state.failed_attempts = 0
