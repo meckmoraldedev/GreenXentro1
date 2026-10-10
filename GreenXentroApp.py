@@ -1,6 +1,9 @@
 import datetime
 import pandas as pd
 import streamlit as st
+import gspread
+from google.oauth2.service_account import Credentials
+
 
 # Page Configuration
 st.set_page_config(
@@ -28,7 +31,8 @@ url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sh
 def load_employee_data():
   # dtype=str forces everything to string, .fillna("") turns blank cells into empty strings
   df = pd.read_csv(url, dtype=str).fillna("")
-  return df.set_index("sap_id").to_dict(orient="index")
+ # drop=False keeps 'sap_id' inside the dictionary record
+  return df.set_index("sap_id", drop=False).to_dict(orient="index")
 
 EMPLOYEE_DB = load_employee_data()
 
@@ -87,6 +91,30 @@ def login_screen():
         st.rerun()
 
 
+def update_password_in_google_sheet(sap_id, new_password_hash):
+  scopes = [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/drive",
+  ]
+  credentials = Credentials.from_service_account_info(
+      st.secrets["gcp_service_account"], scopes=scopes
+  )
+  gc = gspread.authorize(credentials)
+
+  # Opens your Google Sheet
+  spreadsheet = gc.open_by_url(
+      "https://docs.google.com/spreadsheets/d/10Ju2dEKjMwZwOvgFym6R9Raonom5TNWk-ampJeOIlQg/edit"
+  )
+  worksheet = spreadsheet.worksheet("Sheet1")
+
+  # Finds the matching SAP ID in Column A and updates Column G (password_hash)
+  cell = worksheet.find(str(sap_id))
+  if cell:
+    worksheet.update_cell(cell.row, 7, new_password_hash)
+    return True
+  return False
+
+
 def initial_setup_screen():
     st.markdown("### 🔑 Initial Password Setup")
     st.write(f"Welcome, **{st.session_state.user_data.get('name')}** (SAP ID: {st.session_state.user_data.get('sap_id')})")
@@ -104,10 +132,19 @@ def initial_setup_screen():
                 st.error("Passwords do not match.")
             else:
                 sap_id = st.session_state.user_data["sap_id"]
-                EMPLOYEE_DB[sap_id]["password_hash"] = "updated_secure_hash"
-                st.success("Password configured successfully! Redirecting to login...")
-                st.session_state.current_page = "login"
-                st.rerun()
+                # Call function to save password to Google Sheet
+                        success = update_password_in_google_sheet(sap_id, new_password)
+                
+                        if success:
+                          st.success(
+                              "Password configured successfully and saved to Google Sheet!"
+                              " Redirecting to login..."
+                          )
+                          st.cache_data.clear()  # Clears cache so next load fetches updated sheet
+                          st.session_state.current_page = "login"
+                          st.rerun()
+                        else:
+                          st.error("Failed to update Google Sheet. SAP ID not found.")
 
 
 def forgot_password_screen():
