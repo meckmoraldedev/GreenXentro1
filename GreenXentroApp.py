@@ -116,35 +116,41 @@ def update_password_in_google_sheet(sap_id, new_password_hash):
 
 
 def initial_setup_screen():
-    st.markdown("### 🔑 Initial Password Setup")
-    st.write(f"Welcome, **{st.session_state.user_data.get('name')}** (SAP ID: {st.session_state.user_data.get('sap_id')})")
-    st.info("This is your first time logging in. Please set up your initial password.")
+  st.markdown("### 🔑 Initial Password Setup")
+  st.write(
+      f"Welcome, **{st.session_state.user_data.get('name')}** (SAP ID:"
+      f" {st.session_state.user_data.get('sap_id')})"
+  )
+  st.info("This is your first time logging in. Please set up your initial password.")
 
-    with st.form("setup_form"):
-        new_password = st.text_input("New Password", type="password")
-        confirm_password = st.text_input("Confirm Password", type="password")
-        setup_btn = st.form_submit_button("Save Password & Continue", use_container_width=True)
+  with st.form("setup_form"):
+    new_password = st.text_input("New Password", type="password")
+    confirm_password = st.text_input("Confirm Password", type="password")
+    setup_btn = st.form_submit_button(
+        "Save Password & Continue", use_container_width=True
+    )
 
-        if setup_btn:
-            if not new_password or not confirm_password:
-                st.warning("Please fill in both password fields.")
-            elif new_password != confirm_password:
-                st.error("Passwords do not match.")
-            else:
-                sap_id = st.session_state.user_data["sap_id"]
-                # Call function to save password to Google Sheet
-                        success = update_password_in_google_sheet(sap_id, new_password)
-                
-                        if success:
-                          st.success(
-                              "Password configured successfully and saved to Google Sheet!"
-                              " Redirecting to login..."
-                          )
-                          st.cache_data.clear()  # Clears cache so next load fetches updated sheet
-                          st.session_state.current_page = "login"
-                          st.rerun()
-                        else:
-                          st.error("Failed to update Google Sheet. SAP ID not found.")
+    if setup_btn:
+      if not new_password or not confirm_password:
+        st.warning("Please fill in both password fields.")
+      elif new_password != confirm_password:
+        st.error("Passwords do not match.")
+      else:
+        sap_id = st.session_state.user_data["sap_id"]
+
+        # Call function to save password to Google Sheet
+        success = update_password_in_google_sheet(sap_id, new_password)
+
+        if success:
+          st.success(
+              "Password configured successfully and saved to Google Sheet!"
+              " Redirecting to login..."
+          )
+          st.cache_data.clear()  # Clears cache so next load fetches updated sheet
+          st.session_state.current_page = "login"
+          st.rerun()
+        else:
+          st.error("Failed to update Google Sheet. SAP ID not found.")
 
 
 def forgot_password_screen():
